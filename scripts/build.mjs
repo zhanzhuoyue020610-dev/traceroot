@@ -1,9 +1,9 @@
 import {mkdir,cp,writeFile,readFile,stat} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-const sources=[{"file":"bearing-reference.jpg","url":"https://upload.wikimedia.org/wikipedia/commons/2/2d/Ball_bearing.jpg","title":"Ball bearing","author":"Solaris2006","source":"https://commons.wikimedia.org/wiki/File:Ball_bearing.jpg","license":"https://creativecommons.org/licenses/by-sa/3.0/","label":"CC BY-SA 3.0"},{"file":"spark-reference.jpg","url":"https://upload.wikimedia.org/wikipedia/commons/c/c3/Spark_plugs_2.jpg","title":"Spark plugs 2","author":"Aidan Wojtas","source":"https://commons.wikimedia.org/wiki/File:Spark_plugs_2.jpg","license":"https://creativecommons.org/licenses/by-sa/2.0/","label":"CC BY-SA 2.0"},{"file":"alternator-reference.jpg","url":"https://upload.wikimedia.org/wikipedia/commons/5/59/Alternator.jpg","title":"Alternator","author":"Angelsharum","source":"https://commons.wikimedia.org/wiki/File:Alternator.jpg","license":"https://creativecommons.org/licenses/by-sa/3.0/","label":"CC BY-SA 3.0"}];
+const sources=[{"file": "new-oil-filter.jpg", "url": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Olejov%C3%BD_filtr_s_t%C4%9Bsn%C4%9Bn%C3%ADm.jpg", "title": "Olejový filtr s těsněním", "author": "Voton.cz autodíly", "source": "https://commons.wikimedia.org/wiki/File:Olejov%C3%BD_filtr_s_t%C4%9Bsn%C4%9Bn%C3%ADm.jpg", "license": "https://creativecommons.org/licenses/by-sa/4.0/", "label": "CC BY-SA 4.0"}, {"file": "new-spark-plug.jpg", "url": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Sparkplug3.jpg", "title": "Sparkplug3", "author": "Ren206", "source": "https://commons.wikimedia.org/wiki/File:Sparkplug3.jpg", "license": "https://commons.wikimedia.org/wiki/File:Sparkplug3.jpg#Licensing", "label": "Public domain"}];
 await mkdir('dist/assets',{recursive:true});
 await cp('assets','dist/assets',{recursive:true});
-for(const file of ['index.html','style.css','app.js','image-credits.html'])await cp(file,'dist/'+file);
+for(const file of ['index.html','style.css','app.js','image-credits.html','favicon.ico'])await cp(file,'dist/'+file);
 const downloaded=[];
 for(const item of sources){
 const response=await fetch(item.url,{headers:{'User-Agent':'TRACEROOT-Website/1.0 (https://www.traceroot.info; licensed-image-build)'},signal:AbortSignal.timeout(45000)});
@@ -15,6 +15,6 @@ downloaded.push({...item,bytes:bytes.length,sha256:createHash('sha256').update(b
 console.log('Bundled licensed photo: '+item.file+' ('+bytes.length+' bytes)');
 }
 const html=await readFile('dist/index.html','utf8');
-for(const match of html.matchAll(/(?:src|href)="(assets\/[^"]+)"/g)){const info=await stat('dist/'+match[1]);if(!info.isFile()||info.size===0)throw new Error('Missing asset '+match[1]);}
+for(const match of html.matchAll(/(?:src|href)="(assets\/[^"]+)"/g)){const info=await stat('dist/'+match[1].split('?')[0]);if(!info.isFile()||info.size===0)throw new Error('Missing asset '+match[1]);}
 await writeFile('dist/assets/photo-sources.json',JSON.stringify(downloaded,null,2));
 console.log('All page images and brochure assets verified.');
